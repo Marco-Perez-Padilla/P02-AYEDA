@@ -23,14 +23,14 @@
 #include <iostream>
 
 #include "big_unsigned.h"
-//#include "big_integer.h"
+#include "big_integer.h"
 //#include "big_complex.h"
 
 #include "check_functions.h"
 
 int main (int argc, char* argv[]) {
 
-  constexpr unsigned char Base = 2;
+  constexpr unsigned char Base = 8;
 
   ValidateCommand(argc, argv);
 
@@ -56,10 +56,10 @@ int main (int argc, char* argv[]) {
   std::cout << "Introduzca dos números para el caso en que el numerador es menor al denominador: " << std::endl;
   std::cout << std::endl;
 
-  BigUnsigned prueba_unsigned_3;
+  BigUnsigned<Base> prueba_unsigned_3;
   std::cout << "Numerador: ";
   std::cin >> prueba_unsigned_3;
-  BigUnsigned prueba_unsigned_4;
+  BigUnsigned<Base> prueba_unsigned_4;
   std::cout << "Denominador: ";
   std::cin >> prueba_unsigned_4;
 
@@ -72,40 +72,40 @@ int main (int argc, char* argv[]) {
   std::cout << "Comparación: " << prueba_unsigned_3 << " == " << prueba_unsigned_4 << " = " << ((prueba_unsigned_3 == prueba_unsigned_4) ? "true" : "false") << std::endl;
 
   std::cout << std::endl;
-  // std::cout << std::endl;
+  std::cout << std::endl;
 
-  // std::cout << "Comprobaciones para Big Integer." << std::endl;
-  // std::cout << std::endl;
-  // std::cout << std::endl;
+  std::cout << "Comprobaciones para Big Integer." << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
 
-  // std::cout << "Introduzca dos números BigInteger para realizar las comprobaciones: " << std::endl;
-  // std::cout << "  Casos posibles: " << std::endl;
-  // std::cout << "    - Numerador mayor que denominador, ambos positivos" << std::endl;
-  // std::cout << "    - Numerador mayor que denominador, ambos negativos" << std::endl;
-  // std::cout << "    - Numerador mayor que denominador, uno de ellos negativo, otro positivo" << std::endl;
-  // std::cout << "    - Numerador menor que denominador, ambos positivos" << std::endl;
-  // std::cout << "    - Numerador menor que denominador, ambos negativos" << std::endl;
-  // std::cout << "    - Numerador mayor que denominador, uno de ellos negativo, otro positivo" << std::endl;
+  std::cout << "Introduzca dos números BigInteger para realizar las comprobaciones: " << std::endl;
+  std::cout << "  Casos posibles: " << std::endl;
+  std::cout << "    - Numerador mayor que denominador, ambos positivos" << std::endl;
+  std::cout << "    - Numerador mayor que denominador, ambos negativos" << std::endl;
+  std::cout << "    - Numerador mayor que denominador, uno de ellos negativo, otro positivo" << std::endl;
+  std::cout << "    - Numerador menor que denominador, ambos positivos" << std::endl;
+  std::cout << "    - Numerador menor que denominador, ambos negativos" << std::endl;
+  std::cout << "    - Numerador mayor que denominador, uno de ellos negativo, otro positivo" << std::endl;
 
-  // std::cout << std::endl;
+  std::cout << std::endl;
 
-  // BigInteger numerador;
-  // std::cout << "Numerador: ";
-  // std::cin >> numerador;
-  // BigInteger denominador;
-  // std::cout << "Denominador: ";
-  // std::cin >> denominador;
+  BigInteger<Base> numerador;
+  std::cout << "Numerador: ";
+  std::cin >> numerador;
+  BigInteger<Base> denominador;
+  std::cout << "Denominador: ";
+  std::cin >> denominador;
 
-  // std::cout << std::endl;
+  std::cout << std::endl;
 
-  // std::cout << "Suma: " << numerador << " + " << denominador << " = " << numerador + denominador << std::endl;
-  // std::cout << "Resta: " << numerador << " - " << denominador << " = " << numerador - denominador << std::endl;
-  // std::cout << "Multiplicación: " << numerador << " * " << denominador << " = " << numerador * denominador << std::endl;
-  // std::cout << "División: " << numerador << " / " << denominador << " = " << numerador / denominador << std::endl;
-  // std::cout << "Módulo: " << numerador << " % " << denominador << " = " << numerador % denominador << std::endl;
-  // std::cout << "Comparación: " << numerador << " < " << denominador << " = " << ((numerador < denominador) ? "true" : "false") << std::endl;
-  // std::cout << "Comparación: " << numerador << " == " << denominador << " = " << ((numerador == denominador) ? "true" : "false") << std::endl;
-  // std::cout << "Máximo común divisor: " << "mcd(" << numerador << ", " << denominador << ")" << " = " << numerador.mcd(numerador, denominador) << std::endl;
+  std::cout << "Suma: " << numerador << " + " << denominador << " = " << numerador + denominador << std::endl;
+  std::cout << "Resta: " << numerador << " - " << denominador << " = " << numerador - denominador << std::endl;
+  std::cout << "Multiplicación: " << numerador << " * " << denominador << " = " << numerador * denominador << std::endl;
+  std::cout << "División: " << numerador << " / " << denominador << " = " << numerador / denominador << std::endl;
+  std::cout << "Módulo: " << numerador << " % " << denominador << " = " << numerador % denominador << std::endl;
+  std::cout << "Comparación: " << numerador << " < " << denominador << " = " << ((numerador < denominador) ? "true" : "false") << std::endl;
+  std::cout << "Comparación: " << numerador << " == " << denominador << " = " << ((numerador == denominador) ? "true" : "false") << std::endl;
+  std::cout << "Máximo común divisor: " << "mcd(" << numerador << ", " << denominador << ")" << " = " << numerador.mcd(numerador, denominador) << std::endl;
 
   // std::cout << std::endl;
   // std::cout << std::endl;
