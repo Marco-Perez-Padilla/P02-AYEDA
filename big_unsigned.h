@@ -102,7 +102,7 @@ template <unsigned char Base> BigUnsigned<Base>::BigUnsigned(unsigned numero) {
   } else {
     while (numero > 0) {
       // Getting the digit and converting it to char type
-      unsigned char digit = numero % Base;
+      unsigned char digit = numero % 10;
       digits_.push_back(digit);
       // Advance to the next digit
       numero /= 10;
@@ -122,13 +122,18 @@ template <unsigned char Base> BigUnsigned<Base>::BigUnsigned(const unsigned char
   // For each char in the array, until it reaches '<\0'
   while (char_array[i] != '\0') {
     // If it's not a number, abort
-    if (char_array[i] < '0' || char_array[i] > '9') { // REVISAR
+    if ((char_array[i] < '0' || char_array[i] > (Base + '0')) && (char_array[i] < 'A' || char_array[i] > 'Z' || Base < 10)) { // REVISAR
       std::cerr << "The array must not contain a non-numeric character" << std::endl;
       return;
     } else {
       // Convert the digit
-      unsigned char digit = char_array[i] - '0';;
-      temp_digits.push_back(digit);
+      if (char_array[i] >= 'A' && char_array[i] <= 'Z') {
+        unsigned char digit = char_array[i];
+        temp_digits.push_back(digit);
+      } else {
+        unsigned char digit = char_array[i] - '0';;
+        temp_digits.push_back(digit);
+      }
       ++i;
     }
   }
@@ -164,9 +169,13 @@ template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const B
     os << '0';
   } else {
     for (int i {num.getDigits().size() - 1}; i >= 0; --i) {
-      int digit = num.getDigits()[i];
-      os << digit;
-    } // IF para hexadecimal
+      if (num.getDigits()[i] >= 'A' && num.getDigits()[i] <= 'Z') {
+        os << num.getDigits()[i];
+      } else {
+        int digit = num.getDigits()[i];
+        os << digit;
+      }
+    } 
   }
   return os;
 }
@@ -263,7 +272,7 @@ template <unsigned char Base> BigUnsigned<Base> operator+(const BigUnsigned<Base
   // Clearing the BU result
   result.digits_.clear();
   // Declaring a carry to count while summing
-  int carry = 0;
+  bool carry = 0;
 
   // Case: The two numbers have the same size
   if (big_unsigned_1.getDigits().size() == big_unsigned_2.getDigits().size()) {
@@ -271,15 +280,33 @@ template <unsigned char Base> BigUnsigned<Base> operator+(const BigUnsigned<Base
     for (unsigned int i {0}; i < big_unsigned_1.getDigits().size(); ++i) {
       // Getting the carry from the previous step (0 initially)
       int partial_result = carry;
+      int digit_1 = big_unsigned_1.getDigits()[i];
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      } 
+      if (digit_2 > 9) {
+        digit_2 = digit_2 - 'A' +10;
+      }
       // Summing the two digits
-      partial_result += big_unsigned_1.getDigits()[i] + big_unsigned_2.getDigits()[i];
+      partial_result += digit_1 + digit_2;
       // If the sum has two digits, we've got a carry for next steps
       if (partial_result / Base >= 1) {
         // Add the module and update the carry
-        result.digits_.push_back(partial_result % Base); // Revisar QUÉ se mete en hexadecimal
-        carry = partial_result / Base;
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        }
+        result.digits_.push_back(digit_to_add); 
+        carry = 1;
       } else { // Otherwise, there is no carry
-        result.digits_.push_back(partial_result % Base); // CAMBIAR EL IF DE HECHO
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        } 
+        result.digits_.push_back(digit_to_add); 
         carry = 0;
       }
     }
@@ -292,24 +319,61 @@ template <unsigned char Base> BigUnsigned<Base> operator+(const BigUnsigned<Base
     // For each digit of number 2 (the minor BU), we repeat the algorithm for same sizes
     while (i < big_unsigned_2.getDigits().size()) {
       int partial_result = carry;
-      partial_result += big_unsigned_1.getDigits()[i] + big_unsigned_2.getDigits()[i];
+      int digit_1 = big_unsigned_1.getDigits()[i];
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      } 
+      if (digit_2 > 9) {
+        digit_2 = digit_2 - 'A' +10;
+      }
+      // Summing the two digits
+      partial_result += digit_1 + digit_2;
       if (partial_result / Base >= 1) {
-        result.digits_.push_back(partial_result % Base);
-        carry = partial_result / Base;
+        // Add the module and update the carry
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        }
+        result.digits_.push_back(digit_to_add); 
+        carry = 1;
       } else {
-        result.digits_.push_back(partial_result % Base);
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        } 
+        result.digits_.push_back(digit_to_add); 
         carry = 0;
       }
       ++i;
     } // Where it was the final step before, we continue by propagating the carry through the rest of the digits of the greater numebr
     while (i < big_unsigned_1.getDigits().size()) {
       int partial_result = carry;
-      partial_result += big_unsigned_1.getDigits()[i];
+      int digit_1 = big_unsigned_1.getDigits()[i];
+      int digit_2 = 0;
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      } 
+      // Summing the two digits
+      partial_result += digit_1 + digit_2;
       if (partial_result / Base >= 1) {
-        result.digits_.push_back(partial_result % Base);
-        carry = partial_result / Base;
+        // Add the module and update the carry
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        } 
+        result.digits_.push_back(digit_to_add); 
+        carry = 1;
       } else {
-        result.digits_.push_back(partial_result % Base);
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        } 
+        result.digits_.push_back(digit_to_add); 
         carry = 0;
       }
       ++i;
@@ -322,24 +386,61 @@ template <unsigned char Base> BigUnsigned<Base> operator+(const BigUnsigned<Base
     unsigned int i {0};
     while (i < big_unsigned_1.getDigits().size()) {
       int partial_result = carry;
-      partial_result += big_unsigned_1.getDigits()[i] + big_unsigned_2.getDigits()[i];
+      int digit_1 = big_unsigned_1.getDigits()[i];
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      } 
+      if (digit_2 > 9) {
+        digit_2 = digit_2 - 'A' +10;
+      }
+      // Summing the two digits
+      partial_result += digit_1 + digit_2;
       if (partial_result / Base >= 1) {
-        result.digits_.push_back(partial_result % Base);
-        carry = partial_result / Base;
+        // Add the module and update the carry
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        }
+        result.digits_.push_back(digit_to_add); 
+        carry = 1;
       } else {
-        result.digits_.push_back(partial_result % Base);
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        } 
+        result.digits_.push_back(digit_to_add); 
         carry = 0;
       }
       ++i;
     }
     while (i < big_unsigned_2.getDigits().size()) {
       int partial_result = carry;
-      partial_result += big_unsigned_2.getDigits()[i];
+      int digit_1 = 0;
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_2 > 9) {
+        digit_2 = digit_2 - 'A' + 10;
+      } 
+      // Summing the two digits
+      partial_result += digit_1 + digit_2;
       if (partial_result / Base >= 1) {
-        result.digits_.push_back(partial_result % Base);
-        carry = partial_result / Base;
+        // Add the module and update the carry
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        }
+        result.digits_.push_back(digit_to_add); 
+        carry = 1;
       } else {
-        result.digits_.push_back(partial_result % Base);
+        unsigned char digit_to_add = partial_result % Base;
+        // Adapt it to a letter if it's bigger than 9
+        if (digit_to_add > 9) {
+          digit_to_add = (digit_to_add) + 'A' - 10;
+        } 
+        result.digits_.push_back(digit_to_add); 
         carry = 0;
       }
       ++i;
@@ -403,21 +504,41 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator-(con
     for (unsigned int i {0}; i < big_unsigned_2.getDigits().size(); ++i) {
       // Get the carry from previous step (initially zero)
       int partial_digit = carry;
+      int digit_1 = digits_[i];
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      }
+      if (digit_2 > 9) {
+        digit_2 = digit_2 - 'A' + 10;
+      }
       // Sum the carry to the "inferior" digit
-      partial_digit += big_unsigned_2.getDigits()[i];
+      partial_digit += digit_2;
       // If the "superior" limit is lesser than the "inferior" (case 8-9)
-      if (digits_[i] < partial_digit) {
+      if (digit_1 < partial_digit) {
         // The digit to be added will be result of the following formula: 10 - ("inferior" - "superior")
-        partial_digit = Base - (partial_digit - digits_[i]);
+        partial_digit = Base - (partial_digit - digit_1);
         if (partial_digit / Base >= 1) {
-          result.AddDigit(partial_digit % Base);
+          // Add the module and update the carry
+          unsigned char digit_to_add = partial_digit % Base;
+          // Adapt it to a letter if it's bigger than 9
+          if (digit_to_add > 9) {
+            digit_to_add = (digit_to_add) + 'A' - 10;
+          }
+          result.digits_.push_back(digit_to_add); 
         } else {
-          result.AddDigit(partial_digit); // CAMBIAR CARRY??
+          if (partial_digit > 9) {
+            partial_digit = partial_digit + 'A' -10;
+          }
+          result.AddDigit(partial_digit); 
         }
         // Propagate the carry
         carry = 1;
       } else { // Otherwise, rest normally without carry for the next steps
         partial_digit = digits_[i] - partial_digit; 
+        if (partial_digit > 9) {
+          partial_digit = partial_digit + 'A' -10;
+        }
         result.AddDigit(partial_digit);
         carry = 0;
       }
@@ -426,24 +547,44 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator-(con
     unsigned int i {0};
     // For each digit of number 2, do the previous algorithm
     while (i < big_unsigned_2.getDigits().size()) {
-      int partial_digit = digits_[i] - big_unsigned_2.getDigits()[i] - carry;
+      int digit_1 = digits_[i];
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      }
+      if (digit_2 > 9) {
+        digit_2 = digit_2 - 'A' + 10;
+      }
+      // Sum the carry to the "inferior" digit
+      int partial_digit = digit_1 - digit_2 - carry;
       if (partial_digit < 0) {
         partial_digit += Base;
-        carry = 1;                    // REVISAR AQUI
+        carry = 1;                    
       } else {
         carry = 0;
+      }
+      if (partial_digit > 9) {
+        partial_digit = partial_digit + 'A' -10;
       }
       result.AddDigit(partial_digit);
       ++i;
     }
     // For the rest of the digits
     while (i < digits_.size()) {
-      int partial_digit = digits_[i] - carry; 
+      int digit_1 = digits_[i];
+      int digit_2 = big_unsigned_2.getDigits()[i];
+      if (digit_1 > 9) {
+        digit_1 = digit_1 - 'A' + 10;
+      }
+      int partial_digit = digit_1 - carry; 
       if (partial_digit < 0) {
         partial_digit += Base;
         carry = 1;                   // REVISAR AQUI
       } else {
           carry = 0;
+      }
+      if (partial_digit > 9) {
+        partial_digit = partial_digit + 'A' -10;
       }
       result.AddDigit(partial_digit);
       ++i;

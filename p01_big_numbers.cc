@@ -30,7 +30,7 @@
 
 int main (int argc, char* argv[]) {
 
-  constexpr unsigned char Base = 8;
+  constexpr unsigned char Base = 16;
 
   ValidateCommand(argc, argv);
 
@@ -41,7 +41,7 @@ int main (int argc, char* argv[]) {
   std::cout << "Caso en que el numerador es mayor al denominador: " << std::endl;
   std::cout << std::endl;
 
-  BigUnsigned<Base> prueba_unsigned_1 (10010);
+  BigUnsigned<Base> prueba_unsigned_1 (10);
   BigUnsigned<Base> prueba_unsigned_2 (10);
 
   std::cout << "Suma: " << prueba_unsigned_1 << " + " << prueba_unsigned_2 << " = " << prueba_unsigned_1 + prueba_unsigned_2 << std::endl;
@@ -57,11 +57,13 @@ int main (int argc, char* argv[]) {
   std::cout << std::endl;
 
   BigUnsigned<Base> prueba_unsigned_3;
-  std::cout << "Numerador: ";
+  std::cout << "Numerador: ";      // 1513541351354120072
   std::cin >> prueba_unsigned_3;
   BigUnsigned<Base> prueba_unsigned_4;
-  std::cout << "Denominador: ";
+  std::cout << "Denominador: ";    // 543417
   std::cin >> prueba_unsigned_4;
+
+  
 
   std::cout << "Suma: " << prueba_unsigned_3 << " + " << prueba_unsigned_4 << " = " << prueba_unsigned_3 + prueba_unsigned_4 << std::endl;
   std::cout << "Resta: " << prueba_unsigned_3 << " - " << prueba_unsigned_4 << " = " << prueba_unsigned_3 - prueba_unsigned_4 << std::endl;
