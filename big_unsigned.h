@@ -9,14 +9,16 @@
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 05/02/2025
 
-** Archivo big_unsigned.h: Declaracion de la clase para representar numeros naturales grandes, sin limite de representacion
+** Archivo big_unsigned.h: Declaracion e implementacion de la plantilla para representar numeros naturales grandes en cualquier base
 **
 ** Referencias:
 **      Enlaces de interes
 
 ** Historial de revisiones:
 **      05/02/2025 - Creacion (primera version) del codigo
-**      11/02/2025 - Finalizacion del codigo
+**      11/02/2025 - Finalizacion de la primera version del codigo
+**      21/02/2025 - Inicio de segunda version del codigo. Adaptación a plantillas
+**      23/02/2025 - Adaptación de suma y resta para trabajar entre las bases 2 y 36
 **/
 
 #ifndef BIG_UNSIGNED_H
@@ -57,39 +59,6 @@ template <unsigned char Base = 10> class BigUnsigned {
   void AddDigit (unsigned char digit) {digits_.push_back(digit);} // Adds a digit
 };
 
-//template<> class BigUnsigned<2>;
-
-
-
-
-
-
-
-
-
-/**
-** Universidad de La Laguna
-** Escuela Superior de Ingenieria y Tecnologia
-** Grado en Ingenieria Informatica
-** Asignatura: Algoritmos y Estructuras de Datos Avanzadas
-** Curso: 2º
-** Practica 1: Representación de números grandes
-** Autor: Marco Pérez Padilla
-** Correo: alu0101469348@ull.edu.es
-** Fecha: 05/02/2025
-
-** Archivo big_unsigned.cc: Implementacion de la clase para representar numeros naturales grandes, sin limite de representacion
-**
-** Referencias:
-**      Enlaces de interes
-
-** Historial de revisiones:
-**      05/02/2025 - Creacion (primera version) del codigo
-**      11/02/2025 - Finalizacion del codigo
-**      13/20/2025 - Arreglo de la resta
-**/
-
-#include "big_unsigned.h"
 
 /**
  * @brief Default constructor that builds a BigUnsigned object
@@ -491,7 +460,7 @@ template <unsigned char Base> BigUnsigned<Base> operator++(BigUnsigned<Base>& bi
 template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator-(const BigUnsigned<Base>& big_unsigned_2) const {
   BigUnsigned<Base> result;
   // If the number to be rested is greater than the current one, return 0
-  if (*this < big_unsigned_2) {
+  if (*this < big_unsigned_2 || *this == big_unsigned_2) {
     return result;
   }
   // Clear the result
@@ -572,7 +541,6 @@ template <unsigned char Base> BigUnsigned<Base> BigUnsigned<Base>::operator-(con
     // For the rest of the digits
     while (i < digits_.size()) {
       int digit_1 = digits_[i];
-      int digit_2 = big_unsigned_2.getDigits()[i];
       if (digit_1 > 9) {
         digit_1 = digit_1 - 'A' + 10;
       }

@@ -30,7 +30,7 @@
 
 int main (int argc, char* argv[]) {
 
-  constexpr unsigned char Base = 16;
+  constexpr unsigned char Base = 2;
 
   ValidateCommand(argc, argv);
 
@@ -56,22 +56,24 @@ int main (int argc, char* argv[]) {
   std::cout << "Introduzca dos números para el caso en que el numerador es menor al denominador: " << std::endl;
   std::cout << std::endl;
 
-  BigUnsigned<Base> prueba_unsigned_3;
-  std::cout << "Numerador: ";      // 1513541351354120072
-  std::cin >> prueba_unsigned_3;
-  BigUnsigned<Base> prueba_unsigned_4;
-  std::cout << "Denominador: ";    // 543417
-  std::cin >> prueba_unsigned_4;
+  //BigUnsigned<Base> prueba_unsigned_3;
+  //std::cout << "Numerador: ";      // 1513541351354120072
+  //std::cin >> prueba_unsigned_3;
+  //std::cout << prueba_unsigned_3 << std::endl;
+  //BigUnsigned<Base> prueba_unsigned_4;
+  //std::cout << "Denominador: ";    // 543417
+  //std::cin >> prueba_unsigned_4;
+  //std::cout << prueba_unsigned_4 << std::endl;
 
   
 
-  std::cout << "Suma: " << prueba_unsigned_3 << " + " << prueba_unsigned_4 << " = " << prueba_unsigned_3 + prueba_unsigned_4 << std::endl;
-  std::cout << "Resta: " << prueba_unsigned_3 << " - " << prueba_unsigned_4 << " = " << prueba_unsigned_3 - prueba_unsigned_4 << std::endl;
-  std::cout << "Multiplicación: " << prueba_unsigned_3 << " * " << prueba_unsigned_4 << " = " << prueba_unsigned_3 * prueba_unsigned_4 << std::endl;
-  std::cout << "División: " << prueba_unsigned_3 << " / " << prueba_unsigned_4 << " = " << prueba_unsigned_3 / prueba_unsigned_4 << std::endl;
-  std::cout << "Módulo: " << prueba_unsigned_3 << " % " << prueba_unsigned_4 << " = " << prueba_unsigned_3 % prueba_unsigned_4 << std::endl;
-  std::cout << "Comparación: " << prueba_unsigned_3 << " < " << prueba_unsigned_4 << " = " << ((prueba_unsigned_3 < prueba_unsigned_4) ? "true" : "false") << std::endl;
-  std::cout << "Comparación: " << prueba_unsigned_3 << " == " << prueba_unsigned_4 << " = " << ((prueba_unsigned_3 == prueba_unsigned_4) ? "true" : "false") << std::endl;
+  //std::cout << "Suma: " << prueba_unsigned_3 << " + " << prueba_unsigned_4 << " = " << prueba_unsigned_3 + prueba_unsigned_4 << std::endl;
+  //std::cout << "Resta: " << prueba_unsigned_3 << " - " << prueba_unsigned_4 << " = " << prueba_unsigned_3 - prueba_unsigned_4 << std::endl;
+  //std::cout << "Multiplicación: " << prueba_unsigned_3 << " * " << prueba_unsigned_4 << " = " << prueba_unsigned_3 * prueba_unsigned_4 << std::endl;
+  //std::cout << "División: " << prueba_unsigned_3 << " / " << prueba_unsigned_4 << " = " << prueba_unsigned_3 / prueba_unsigned_4 << std::endl;
+  //std::cout << "Módulo: " << prueba_unsigned_3 << " % " << prueba_unsigned_4 << " = " << prueba_unsigned_3 % prueba_unsigned_4 << std::endl;
+  //std::cout << "Comparación: " << prueba_unsigned_3 << " < " << prueba_unsigned_4 << " = " << ((prueba_unsigned_3 < prueba_unsigned_4) ? "true" : "false") << std::endl;
+  //std::cout << "Comparación: " << prueba_unsigned_3 << " == " << prueba_unsigned_4 << " = " << ((prueba_unsigned_3 == prueba_unsigned_4) ? "true" : "false") << std::endl;
 
   std::cout << std::endl;
   std::cout << std::endl;
@@ -94,9 +96,11 @@ int main (int argc, char* argv[]) {
   BigInteger<Base> numerador;
   std::cout << "Numerador: ";
   std::cin >> numerador;
+  std::cout << numerador << std::endl;
   BigInteger<Base> denominador;
   std::cout << "Denominador: ";
   std::cin >> denominador;
+  std::cout << denominador << std::endl;
 
   std::cout << std::endl;
 
@@ -109,8 +113,8 @@ int main (int argc, char* argv[]) {
   std::cout << "Comparación: " << numerador << " == " << denominador << " = " << ((numerador == denominador) ? "true" : "false") << std::endl;
   std::cout << "Máximo común divisor: " << "mcd(" << numerador << ", " << denominador << ")" << " = " << numerador.mcd(numerador, denominador) << std::endl;
 
-  // std::cout << std::endl;
-  // std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
 
   // // Modificacion
 
