@@ -602,30 +602,34 @@ void BigInteger<2>::ProcessZeros() {
 
 
 std::vector<bool> BigInteger<2>::UnsignedSum(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) const {
+  BigInteger<2> big_binary_1_copy = big_binary_1;
+  BigInteger<2> big_binary_2_copy = big_binary_2;
+
   std::vector<bool> result;
   result.clear();
 
-  if (big_binary_1.getModule().size() > big_binary_2.getModule().size()) {
-    
-  }
   unsigned max_size = std::max(big_binary_1.getModule().size(), big_binary_2.getModule().size());
-  unsigned min_size = std::min(big_binary_1.getModule().size(), big_binary_2.getModule().size());
+
+  if (big_binary_1.getModule().size() != max_size && big_binary_1.getSign() == 0) {
+    for (long unsigned int i {big_binary_1.getModule().size()}; i < max_size; ++i) {
+      big_binary_1_copy.AddDigit(1);
+    }
+  } else if (big_binary_2.getModule().size() != max_size && big_binary_2.getSign() == 0) {
+    for (long unsigned int i {big_binary_2.getModule().size()}; i < max_size; ++i) {
+      big_binary_2_copy.AddDigit(1);
+    }
+  }
+
   bool carry = false;
 
   for (unsigned int i {0}; i < max_size || carry; ++i) {
-    bool bit1 = (i < big_binary_1.getModule().size()) ? big_binary_1.getModule()[i] : false; // Get the bit from the first number
-    bool bit2 = (i < big_binary_2.getModule().size()) ? big_binary_2.getModule()[i] : false; // Get the bit from the second number
+    bool bit1 = (i < big_binary_1_copy.getModule().size()) ? big_binary_1_copy.getModule()[i] : false; // Get the bit from the first number
+    bool bit2 = (i < big_binary_2_copy.getModule().size()) ? big_binary_2_copy.getModule()[i] : false; // Get the bit from the second number
     // The sum is the XOR of bits and carry, and it exists a carry if any of the combinations is true (1)
     bool sum = bit1 ^ bit2 ^ carry;
     carry = (bit1 & bit2) | (bit1 & carry) | (bit2 & carry);
     // Insert it 
     result.push_back(sum);
-  }
-
-  if (max_size != min_size) {
-    if (big_binary_2.getSign() == 0 || big_binary_1.getSign() == 0) {
-      result[min_size] = !result[min_size];
-    } 
   }
 
   return result;
@@ -661,20 +665,40 @@ BigInteger<2> BigInteger<2>::TwosComplement() const {
  * @return bool. True if number 1 is less than number 2. False otherwise
  */
  bool operator<(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
-  // The one with minor size will be the minor one between them
-  if (big_binary_1.getModule().size() != big_binary_2.getModule().size()) {
-    return big_binary_1.getModule().size() < big_binary_2.getModule().size();
-  } else { // If same size then
-    // For each digit (from more to less important)
-    for (int i = big_binary_1.getModule().size() - 1; i >= 0; --i) {
-      // If a digit is different, the one with minor value of digit will be the minor one
-      if (big_binary_1.getModule()[i] < big_binary_2.getModule()[i]) {
-        return true;
-      } else if (big_binary_1.getModule()[i] > big_binary_2.getModule()[i]) {
-        return false;
-      }
-    }
+  if (big_binary_1.getSign() == 0 && big_binary_2.getSign() == 1) {
+    return true;
+  } else if (big_binary_1.getSign() == 1 && big_binary_2.getSign() == 0) {
     return false;
+  } else if (big_binary_1.getSign() == 1 && big_binary_2.getSign() == 1) {
+    if (big_binary_1.getModule().size() != big_binary_2.getModule().size()) {
+      return big_binary_1.getModule().size() < big_binary_2.getModule().size();
+    } else { // If same size then
+      // For each digit (from more to less important)
+      for (int i = big_binary_1.getModule().size() - 1; i >= 0; --i) {
+        // If a digit is different, the one with minor value of digit will be the minor one
+        if (big_binary_1.getModule()[i] < big_binary_2.getModule()[i]) {
+          return true;
+        } else if (big_binary_1.getModule()[i] > big_binary_2.getModule()[i]) {
+          return false;
+        }
+      }
+      return false;
+    }
+  } else {
+    if (big_binary_1.getModule().size() != big_binary_2.getModule().size()) {
+      return big_binary_1.getModule().size() > big_binary_2.getModule().size();
+    } else { // If same size then
+      // For each digit (from more to less important)
+      for (int i = big_binary_1.getModule().size() - 1; i >= 0; --i) {
+        // If a digit is different, the one with minor value of digit will be the minor one
+        if (big_binary_1.getModule()[i] < big_binary_2.getModule()[i]) {
+          return false;
+        } else if (big_binary_1.getModule()[i] > big_binary_2.getModule()[i]) {
+          return true;
+        }
+      }
+      return true;
+    }
   }
 }
 
@@ -686,7 +710,7 @@ BigInteger<2> BigInteger<2>::TwosComplement() const {
  * @return bool. True if number 1 and number 2 are the same. False otherwise
  */
 bool operator==(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
-  if (big_binary_1.getModule().size() != big_binary_2.getModule().size()) {
+  if (big_binary_1.getModule().size() != big_binary_2.getModule().size() || big_binary_1.getSign() != big_binary_2.getSign()) {
     return false;
   } else {
     for (long unsigned int i {0}; i < big_binary_1.getModule().size(); ++i) {
@@ -713,7 +737,11 @@ bool operator>=(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_bina
 BigInteger<2> operator+ (const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
   unsigned int max_size = std::max(big_binary_1.getModule().size(), big_binary_2.getModule().size());
   if (big_binary_1.getSign() == 0 && big_binary_2.getSign() == 0) {
-    std::vector<bool> sum = big_binary_1.UnsignedSum(big_binary_1, big_binary_2);
+    BigInteger<2> additional_1 = big_binary_1;
+    additional_1.setSign(1);
+    BigInteger<2> additional_2 = big_binary_2;
+    additional_2.setSign(1);
+    std::vector<bool> sum = big_binary_1.UnsignedSum(additional_1, additional_2);
     BigInteger<2> result (sum, 0);
     result.ProcessZeros();
     return result;
@@ -723,12 +751,16 @@ BigInteger<2> operator+ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
       result.ProcessZeros();
       return result;
     } else {
-      BigInteger<2> complement = big_binary_1.TwosComplement();
-      std::vector<bool> sum = big_binary_1.UnsignedSum(complement, big_binary_2);
+      BigInteger<2> additional_1 = big_binary_1;
+      additional_1.setSign(1);
+      BigInteger<2> additional_2 = big_binary_2;
+      additional_2.setSign(1);
+      BigInteger<2> complement = additional_2.TwosComplement();
+      std::vector<bool> sum = big_binary_1.UnsignedSum(additional_1, complement);
       if (sum.size() > max_size) {
         sum.pop_back();
       }
-      bool sum_sign = (big_binary_1.getModule() <= big_binary_2.getModule()) ? 0 : 1;
+      bool sum_sign = (big_binary_2 < big_binary_1 || big_binary_2 == big_binary_1) ? 1 : 0;
       BigInteger<2> result (sum, sum_sign);
       result.ProcessZeros();
       return result;
@@ -739,12 +771,14 @@ BigInteger<2> operator+ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
       result.ProcessZeros();
       return result;
     } else {
-      BigInteger<2> complement = big_binary_2.TwosComplement();
+      BigInteger<2> additional = big_binary_2;
+      additional.setSign(1);
+      BigInteger<2> complement = additional.TwosComplement();
       std::vector<bool> sum = big_binary_1.UnsignedSum(big_binary_1, complement);
       if (sum.size() > max_size) {
         sum.pop_back();
       }
-      bool sum_sign = (big_binary_2.getModule() <= big_binary_1.getModule()) ? 0 : 1;
+      bool sum_sign = (big_binary_2 < big_binary_1 || big_binary_2 == big_binary_1) ? 1 : 0;
       BigInteger<2> result (sum, sum_sign);
       result.ProcessZeros();
       return result;
@@ -792,27 +826,29 @@ BigInteger<2> BigInteger<2>::operator- (const BigInteger<2>& big_binary_2) const
       result.ProcessZeros();
       return result;
     } else {
-      BigInteger<2> partial = *this;
+      BigInteger<2> partial = big_binary_2;
+      partial.setSign(1);
+      BigInteger<2> additional = *this;
+      additional.setSign(0);
       BigInteger<2> complement = partial.TwosComplement();
-      std::vector<bool> sum = big_binary_2.UnsignedSum(complement, big_binary_2);
+      std::vector<bool> sum = big_binary_2.UnsignedSum(complement, additional);
       if (sum.size() > max_size) {
         sum.pop_back();
       }
-      bool sum_sign = (module_ <= big_binary_2.getModule()) ? 0 : 1;
+      bool sum_sign = (big_binary_2 < *this || big_binary_2 == *this) ? 1 : 0;
       BigInteger<2> result (sum, sum_sign);
       result.ProcessZeros();
       return result;
     }
   } else if (sign_ == 0 && big_binary_2.getSign() == 1) {
-    BigInteger<2> partial = *this;
-    BigInteger<2> complement_1 = partial.TwosComplement();
-    BigInteger<2> complement_2 = big_binary_2.TwosComplement();
-    std::vector<bool> sum = big_binary_2.UnsignedSum(complement_1, complement_2);
+    std::vector<bool> sum = big_binary_2.UnsignedSum(*this, big_binary_2);
     BigInteger<2> result (sum, 0);
     result.ProcessZeros();
     return result;
   } else if (sign_ == 1 && big_binary_2.getSign() == 0) {
-    std::vector<bool> sum = big_binary_2.UnsignedSum(*this, big_binary_2);
+    BigInteger<2> additional = big_binary_2;
+    additional.setSign(1);
+    std::vector<bool> sum = big_binary_2.UnsignedSum(*this, additional);
     BigInteger<2> result (sum, 1);
     result.ProcessZeros();
     return result;
@@ -827,7 +863,7 @@ BigInteger<2> BigInteger<2>::operator- (const BigInteger<2>& big_binary_2) const
       if (sum.size() > max_size) {
         sum.pop_back();
       }
-      bool sum_sign = (big_binary_2.getModule() <= module_) ? 0 : 1;
+      bool sum_sign = (big_binary_2 < *this || big_binary_2 == *this) ? 1 : 0;
       BigInteger<2> result (sum, sum_sign);
       result.ProcessZeros();
       return result;
@@ -877,8 +913,13 @@ BigInteger<2> BigInteger<2>::operator* (const BigInteger<2>& mult) const {
   }
 
   BigInteger<2> counter;
-  while (counter < mult) {
-    result = result + *this; // Suma el número actual al resultado
+  BigInteger<2> mult_copy = mult;
+  mult_copy.setSign(1);
+  BigInteger<2> additional = *this;
+  additional.setSign(1);
+
+  while (counter < mult_copy) {
+    result = result + additional; // Suma el número actual al resultado
     ++counter; // Incrementa el contador
   }
 
@@ -898,10 +939,15 @@ BigInteger<2> BigInteger<2>::operator* (const BigInteger<2>& mult) const {
  * @return BU module result
  */
 BigInteger<2> BigInteger<2>::operator% (const BigInteger<2>& big_binary) const {
-  BigInteger<2> temp_num;
-  temp_num = *this;
-  while (temp_num >= big_binary) {
-    temp_num = temp_num - big_binary;
+  BigInteger<2> temp_num = *this;
+  BigInteger<2> big_binary_copy = big_binary;
+  BigInteger<2> temp_control = big_binary;
+
+  temp_num.setSign(1);
+  big_binary_copy.setSign(1);
+
+  while (temp_num >= big_binary_copy) {
+    temp_num = temp_num - big_binary_copy;
     temp_num.ProcessZeros();
   }
 
@@ -924,13 +970,24 @@ BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
   }
 
   temp_num.Clear();
-  BigInteger<2> counter;
+  BigInteger<2> counter (0);
+  BigInteger<2> big_binary_2_copy = big_binary_2;
   temp_num = big_binary_1;
-  char a;
-  while (temp_num >= big_binary_2) {
-    temp_num = temp_num - big_binary_2;
+  temp_num.setSign(1);
+  big_binary_2_copy.setSign(1);
+
+  BigInteger<2> complement = big_binary_2.TwosComplement();
+  complement.setSign(1);
+  complement.AddDigit(1);
+
+  while (temp_num >= big_binary_2_copy) {
+    //if (temp_num < complement || temp_num == complement) {
+      //break;
+    //}
+    temp_num = temp_num - big_binary_2_copy;
+    temp_num.ProcessZeros();
+    //std::cout << temp_num << std::endl;
     ++counter; 
-    std::cin >> a;
   }
 
   if (big_binary_1.getSign() != big_binary_2.getSign()) {
@@ -943,14 +1000,23 @@ BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
 }
 
 
+/**
+ * @brief Overload of % operator. It returns the module resulting from the integer division between two BU
+ * @param BU denominator
+ * @return BU module result
+ */
 BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>& num_2) const {
   // Getting two temporal BI to modify in the iterative version of the GCD, with motivation not to overflow the stack with recursive calls
   BigInteger<2> temp_num_1 = num_1;
   BigInteger<2> temp_num_2 = num_2;
   // Null Integer to compare in the while
-  BigInteger<2> null (std::vector<bool>(0), 1);
+  BigInteger<2> null;
+  
+  temp_num_1.setSign(1);
+  temp_num_2.setSign(1);
+
   // While the second number is not 0
-  while (!(temp_num_2 == null)) {
+  while (!(temp_num_2 == null) && !(temp_num_2 < null)) {
     // Auxiliar number is the second number
     BigInteger<2> temp = temp_num_2;
     // Second number is module of first and second number
