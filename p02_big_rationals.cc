@@ -9,15 +9,18 @@
 ** Correo: alu0101469348@ull.edu.es
 ** Fecha: 05/02/2025
 
-** Archivo p01_big_numbers.cc: programa cliente.
-**      Contiene la funcion main del proyecto que usa las clases 
+** Archivo p02_big_rationals.cc: programa cliente.
+**      Contiene la funcion main del proyecto que usa las templates para trabajar con numeros racionales en bases 2, 8, 10 y 16
 **
 ** Referencias:
 **      Enlaces de interes
 
 ** Historial de revisiones:
 **      05/02/2025 - Creacion (primera version) del codigo
-**      12/02/2025 - Version final del codigo
+**      12/02/2025 - Version final de la primera version del codigo
+**      24/02/2026 - Adaptacion provisional para trabajar con plantillas
+**      26/02/2025 - Adicion de funciones para instanciar las plantillas en tiempo de compilacion
+**      26/02/2025 - Adaptacion final del codigo para trabajar con ficheros de entrada y salida
 **/
 
 #include <iostream>
