@@ -18,7 +18,10 @@
 **      05/02/2025 - Creacion (primera version) del codigo
 **      11/02/2025 - Finalizacion de la primera version del codigo
 **      21/02/2025 - Inicio de segunda version del codigo. Adaptación a plantillas
-**      24/02/2025 - 
+**      24/02/2025 - Creación de la especificación para la base dos
+**      24/02/2025 - Creacion de constructores y operadores =, << y >> para la base dos
+**      25/02/2025 - Creacion del resto de operadores y metodos para la base dos
+**      25/02/2025 - Adicion del constructor de cambio de tipo de BigUnsigned<2> a BigInteger<2>
 **/
 
 
@@ -402,6 +405,10 @@ template <unsigned char Base> BigInteger<Base> BigInteger<Base>::mcd(const BigIn
   return temp_num_1;
 }
 
+
+/**
+ * 
+ */
 template<> class BigInteger<2> {
  private:
   std::vector<bool> module_;
@@ -416,7 +423,8 @@ template<> class BigInteger<2> {
   // Constructors
   BigInteger(int n = 0);
   BigInteger(const unsigned char* );
-  BigInteger(const std::vector<bool> module, bool sign) : module_(module), sign_(sign) {};
+  BigInteger(const BigUnsigned<2>&);
+  BigInteger(const std::vector<bool>& module, bool sign) : module_(module), sign_(sign) {};
   BigInteger(const BigInteger<2>& big_binary) : module_(big_binary.getModule()), sign_(big_binary.getSign()) {}; // Constructor de copia
   
   // Getters
@@ -512,6 +520,12 @@ BigInteger<2>::BigInteger(const unsigned char* char_array) {
 }
 
 
+BigInteger<2>::BigInteger(const BigUnsigned<2>& to_be_binary) {
+  for (long unsigned int i {0}; i < to_be_binary.getDigits().size(); ++i) {
+    module_.push_back(to_be_binary.getDigits()[i]);
+  }
+  sign_ = 1;
+}
 
 
 /**
@@ -818,6 +832,11 @@ BigInteger<2> operator++(BigInteger<2>& big_binary_1, int) {
 }
 
 
+/**
+ * @brief Overload of - operator, it calculates the rest between two BU. If the result is less than zero, it'll show zero
+ * @param BU number to be rested
+ * @return BU result of the rest
+ */
 BigInteger<2> BigInteger<2>::operator- (const BigInteger<2>& big_binary_2) const {
   unsigned int max_size = std::max(module_.size(), big_binary_2.getModule().size());
   if (sign_ == 0 && big_binary_2.getSign() == 0) {
@@ -941,7 +960,6 @@ BigInteger<2> BigInteger<2>::operator* (const BigInteger<2>& mult) const {
 BigInteger<2> BigInteger<2>::operator% (const BigInteger<2>& big_binary) const {
   BigInteger<2> temp_num = *this;
   BigInteger<2> big_binary_copy = big_binary;
-  BigInteger<2> temp_control = big_binary;
 
   temp_num.setSign(1);
   big_binary_copy.setSign(1);
@@ -976,17 +994,9 @@ BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
   temp_num.setSign(1);
   big_binary_2_copy.setSign(1);
 
-  BigInteger<2> complement = big_binary_2.TwosComplement();
-  complement.setSign(1);
-  complement.AddDigit(1);
-
   while (temp_num >= big_binary_2_copy) {
-    //if (temp_num < complement || temp_num == complement) {
-      //break;
-    //}
     temp_num = temp_num - big_binary_2_copy;
     temp_num.ProcessZeros();
-    //std::cout << temp_num << std::endl;
     ++counter; 
   }
 

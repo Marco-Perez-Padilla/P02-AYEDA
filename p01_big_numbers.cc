@@ -24,13 +24,13 @@
 
 #include "big_unsigned.h"
 #include "big_integer.h"
-//#include "big_complex.h"
+#include "big_rational.h"
 
 #include "check_functions.h"
 
 int main (int argc, char* argv[]) {
 
-  constexpr unsigned char Base = 2;
+  constexpr unsigned char Base = 10;
 
   ValidateCommand(argc, argv);
 
@@ -106,7 +106,7 @@ int main (int argc, char* argv[]) {
 
   std::cout << "Suma: " << numerador << " + " << denominador << " = " << numerador + denominador << std::endl;
   std::cout << "Resta: " << numerador << " - " << denominador << " = " << numerador - denominador << std::endl;
-  std::cout << "Multiplicación: " << numerador << " * " << denominador << " = " << numerador * denominador << std::endl;
+  //std::cout << "Multiplicación: " << numerador << " * " << denominador << " = " << numerador * denominador << std::endl;
   std::cout << "División: " << numerador << " / " << denominador << " = " << numerador / denominador << std::endl;
   std::cout << "Módulo: " << numerador << " % " << denominador << " = " << numerador % denominador << std::endl;
   std::cout << "Comparación: " << numerador << " < " << denominador << " = " << ((numerador < denominador) ? "true" : "false") << std::endl;
@@ -116,25 +116,13 @@ int main (int argc, char* argv[]) {
   std::cout << std::endl;
   std::cout << std::endl;
 
-  // // Modificacion
-
-  // std::cout << "Comprobaciones para Big Complex." << std::endl;
-  // std::cout << std::endl;
-  // std::cout << std::endl;
-  // const BigInteger additional_1 (123456789, 1);
-  // BigInteger additional_2;
-  // std::cout << "Introduzca la parte real del segundo numero (9876543210)" << std::endl;
-  // std::cin >> additional_2;
-  // const BigInteger additional_3 (123456788, 0);
-
-  // BigComplex num1 (additional_1, additional_1);
-  // BigComplex num2 (9876543210, additional_3);
-
-  // std::cout << "num1: " << num1 << std::endl;
-  // std::cout << "num2: " << num2 << std::endl;
+  BigRational<Base> prueba_rational_1 (numerador, denominador);
   
-  // std::cout << std::endl;
-
-  // std::cout << "Suma: " << num1 + num2 << std::endl;
+  std::cout << prueba_rational_1 << std::endl;
+  BigRational<Base> prueba_rational_2;
+  std::cout << "Rational: ";
+  std::cin >> prueba_rational_2;
+  std::cout << prueba_rational_2 << std::endl;
+  std::cout << std::endl;
   return 0;
 }

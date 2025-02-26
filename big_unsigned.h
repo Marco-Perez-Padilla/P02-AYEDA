@@ -643,6 +643,8 @@ template <unsigned char Base> BigUnsigned<Base> operator/(const BigUnsigned<Base
   if ((big_unsigned_2.getDigits().size() == 1 && big_unsigned_2.getDigits()[0] == 0) || (big_unsigned_1.getDigits().size() == 1 && big_unsigned_1.getDigits()[0] == 0) || (big_unsigned_1.getDigits().empty()) || (big_unsigned_2.getDigits().empty())) {
     temp_num.AddDigit(0);
     return temp_num;
+  } else if (big_unsigned_2.getDigits().size() == 1 && (big_unsigned_2.getDigits()[0] == 1)) {
+    return big_unsigned_1; 
   }
 
   temp_num.Clear();
