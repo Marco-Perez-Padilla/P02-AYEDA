@@ -17,6 +17,7 @@
 ** Historial de revisiones:
 **      25/02/2025 - Creacion (primera version) del codigo
 **      26/02/2025 - Creacion de constructores y operadores de extraccion e insercion
+**      26/02/2025 - Creacion del resto de metodos para operar con ellos
 **/
 
 
@@ -28,10 +29,15 @@
 
 #include "big_integer.h"
 
+
+/**
+ * @brief Template of BigRational classes, it generates a BigRational number depending on the base passed as parameter.
+ * @param unsigned_char base of representation
+ */
 template <unsigned char Base = 10> class BigRational {
  private:
   BigInteger<Base> numerator_;
-  BigInteger<Base> denominator_;; // 1 if positive, 0 if negative
+  BigInteger<Base> denominator_;; 
  public:
   // Constructors
   BigRational(const BigInteger<Base>& numerator = 0, const BigInteger<Base>& denominator = 1) : numerator_(numerator), denominator_(denominator) {};
@@ -58,8 +64,8 @@ template <unsigned char Base = 10> class BigRational {
 
 /**
  * @brief Copy constructor 
- * @param BI to be copied
- * @return BI copied
+ * @param BR to be copied
+ * @return BR copied
  */
 template <unsigned char Base> BigRational<Base>& BigRational<Base>::operator=(const BigRational<Base>& big_rational) {
   if (this != &big_rational) {
@@ -70,11 +76,10 @@ template <unsigned char Base> BigRational<Base>& BigRational<Base>::operator=(co
 }
 
 
-
 /**
  * @brief Overload of << operator
  * @param ostream
- * @param BI number to be printed
+ * @param BR number to be printed
  * @return ostream
  */
 template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const BigRational<Base>& num) {
@@ -90,48 +95,54 @@ template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const B
 
 
 /**
- * @brief Overload of >> operator
+ * @brief Overload of >> operator. It requieres a line with format: numerator / denominator
  * @param istream
- * @param BI number to be inserted
+ * @param BR number to be inserted
  * @return istream
  */
 template <unsigned char Base> std::istream& operator>>(std::istream& is, BigRational<Base>& num) {
   BigInteger<Base> numerator;
   BigInteger<Base> denominator;
 
+  // Getting the numerator
   is >> numerator;
 
+  // Skipping the slash in the line ('/')
   char caracter;
   is >> caracter;
   if (caracter != '/') {
-    std::cerr << "Error: Formato incorrecto. Debe ser 'numerador/denominador'.\n";
+    std::cerr << "Error: Incorrect format.It must be 'numerator / denominator'\n";
     exit(EXIT_FAILURE);
   }
   
+  // Getting the denominator
   is >> denominator;
 
+  // Checking that the denominator is not 0
+  if (denominator == BigInteger<Base>(0)) {
+    std::cerr << "Error: Denominator cannot be 0\n";
+    exit(EXIT_FAILURE);
+  } 
+
+  // Setting the number
   num.setDenominator(denominator);
   num.setNumerator(numerator);
-  
-  if (num.getDenominator() == BigInteger<Base>(0)) {
-    std::cerr << "Error: El denominador no puede ser cero.\n";
-    exit(EXIT_FAILURE);
-  }
 
   return is;
 }
 
 
 /**
- * @brief Overload of < operator between two BI
- * @param BI 1 to be compared
- * @param BI 2 to be compared
+ * @brief Overload of < operator between two BR
+ * @param BR 1 to be compared
+ * @param BR 2 to be compared
  * @return if BU_1 is minor than BU_2
  */
 template <unsigned char Base> bool operator<(const BigRational<Base>& big_rational_1, const BigRational<Base>& big_rational_2) {
   BigInteger<Base> result_1;
   BigInteger<Base> result_2;
 
+  // If we have: E = a/b and F = c/d, we know that E < F if a*d < b*c
   result_1 = big_rational_1.getNumerator() * big_rational_2.getDenominator();
   result_2 = big_rational_2.getNumerator() * big_rational_1.getDenominator();
 
@@ -140,9 +151,9 @@ template <unsigned char Base> bool operator<(const BigRational<Base>& big_ration
 
 
 /**
- * @brief Overload of == operator for BI class
- * @param BU number 1 
- * @param BU number 2
+ * @brief Overload of == operator for BR class
+ * @param BR number 1 
+ * @param BR number 2
  * @return bool. True if number 1 and number 2 are the same. False otherwise
  */
 template <unsigned char Base> bool operator==(const BigRational<Base>& big_rational_1, const BigRational<Base>& big_rational_2) {
@@ -155,9 +166,9 @@ template <unsigned char Base> bool operator==(const BigRational<Base>& big_ratio
 
 
 /**
- * @brief Overload of >= operator for BI class
- * @param BI number 1 
- * @param BI number 2
+ * @brief Overload of >= operator for BR class
+ * @param BR number 1 
+ * @param BR number 2
  * @return bool. True if number 1 is greater or equal than number 2. False otherwise
  */
 template <unsigned char Base> bool operator>=(const BigRational<Base>& big_rational_1, const BigRational<Base>& big_rational_2) {
@@ -167,10 +178,10 @@ template <unsigned char Base> bool operator>=(const BigRational<Base>& big_ratio
 
 
 /**
- * @brief Overload of + operator, it calculates the sum between two BI
- * @param BI number 1 to be summed
- * @param BI number 2 to be summed
- * @return BI result of the sum
+ * @brief Overload of + operator, it calculates the sum between two BR
+ * @param BR number 1 to be summed
+ * @param BR number 2 to be summed
+ * @return BR result of the sum
  */
 template <unsigned char Base> BigRational<Base> operator+(const BigRational<Base>& big_rational_1, const BigRational<Base>& big_rational_2) {
   BigInteger<Base> numerador;
@@ -197,10 +208,10 @@ template <unsigned char Base> BigRational<Base> operator+(const BigRational<Base
 
 
 /**
- * @brief Overload of - operator, it calculates the rest between two BI
- * @param BI number 1 to be rested
- * @param BI number 2 to be rested
- * @return BI result of the rest
+ * @brief Overload of - operator, it calculates the rest between two BR
+ * @param BR number 1 to be rested
+ * @param BR number 2 to be rested
+ * @return BR result of the rest
  */
 template <unsigned char Base> BigRational<Base> BigRational<Base>::operator-(const BigRational<Base>& big_rational_2) const {
   BigInteger<Base> numerador;
@@ -226,13 +237,11 @@ template <unsigned char Base> BigRational<Base> BigRational<Base>::operator-(con
 }
 
 
-
-
 /**
- * @brief Overload of * operator. It returns the multiplication between two BI
- * @param BI Number 1
- * @param BI Number 2
- * @return BI result
+ * @brief Overload of * operator. It returns the multiplication between two BR
+ * @param BR Number 1
+ * @param BR Number 2
+ * @return BR result
  */
 template <unsigned char Base> BigRational<Base> BigRational<Base>::operator*(const BigRational<Base>& mult) const {
   BigInteger<Base> numerador;
@@ -250,10 +259,10 @@ template <unsigned char Base> BigRational<Base> BigRational<Base>::operator*(con
 
 
 /**
- * @brief Overload of / operator. It returns the integer division between two BI
- * @param BI numerator
- * @param BI denominator
- * @return BI integer result
+ * @brief Overload of / operator. It returns the integer division between two BR
+ * @param BR numerator
+ * @param BR denominator
+ * @return BR result
  */
 template <unsigned char Base> BigRational<Base> operator/ (const BigRational<Base>& big_rational_1, const BigRational<Base>& big_rational_2) {
   BigInteger<Base> numerador;
@@ -268,7 +277,6 @@ template <unsigned char Base> BigRational<Base> operator/ (const BigRational<Bas
   BigRational<Base> result (numerador, denominador);
   return result;
 }
-
 
 
 #endif

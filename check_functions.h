@@ -16,11 +16,14 @@
 
 ** Historial de revisiones:
 **      05/02/2025 - Creacion (primera version) del codigo
-**      12/02/2025 - Finalizacion del codigo
+**      12/02/2025 - Finalizacion de la primera version codigo
+**      26/02/2025 - Adicion de checkfile functions
 **/
 
 #include <iostream>
 
+bool ValidateFile (const std::string& name);
+void CheckFileError (const std::string& name);
 void ValidateCommand(int argc, char* argv[]);
 void Help ();
 void Usage();

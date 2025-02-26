@@ -27,6 +27,13 @@
 #include <iostream>
 #include <vector>
 
+
+/**
+ * @brief Template of BigUnsigned classes, it generates a BigUnsigned number depending on the base passed as parameter.
+ *        It is made out of the BigUnsigned class, being this modified to adapt it to template, finding general rules of
+ *        calculation and representation
+ * @param unsigned_char base of representation
+ */
 template <unsigned char Base = 10> class BigUnsigned {
  private:
   std::vector<unsigned char> digits_;
@@ -138,6 +145,7 @@ template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const B
     os << '0';
   } else {
     for (int i {num.getDigits().size() - 1}; i >= 0; --i) {
+      // If the digit's value is greater than 9, we're on higher than 10 bases. We need letters to represent it. We get here its representation (not its ascii code)
       if (num.getDigits()[i] >= 'A' && num.getDigits()[i] <= 'Z') {
         os << num.getDigits()[i];
       } else {
@@ -249,6 +257,7 @@ template <unsigned char Base> BigUnsigned<Base> operator+(const BigUnsigned<Base
     for (unsigned int i {0}; i < big_unsigned_1.getDigits().size(); ++i) {
       // Getting the carry from the previous step (0 initially)
       int partial_result = carry;
+      // If the digit's value is greater than 9, we're on higher than 10 bases. We need letters to represent it. We get here its real value
       int digit_1 = big_unsigned_1.getDigits()[i];
       int digit_2 = big_unsigned_2.getDigits()[i];
       if (digit_1 > 9) {
@@ -317,7 +326,7 @@ template <unsigned char Base> BigUnsigned<Base> operator+(const BigUnsigned<Base
         carry = 0;
       }
       ++i;
-    } // Where it was the final step before, we continue by propagating the carry through the rest of the digits of the greater numebr
+    } // Where it was the final step before, we continue by propagating the carry through the rest of the digits of the greater number
     while (i < big_unsigned_1.getDigits().size()) {
       int partial_result = carry;
       int digit_1 = big_unsigned_1.getDigits()[i];

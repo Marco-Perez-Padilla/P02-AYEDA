@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++23 -Wall -g
 SOURCES = $(wildcard *.cc)
 OBJ = $(SOURCES:.cc=.o)
 
-EXECUTABLE = p01_big_integers
+EXECUTABLE = p02_big_rationals
 
 all: $(EXECUTABLE)
 

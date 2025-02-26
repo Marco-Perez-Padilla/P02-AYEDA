@@ -32,6 +32,13 @@
 
 #include "big_unsigned.h"
 
+
+/**
+ * @brief Template of BigInteger classes, it generates a BigUnsigned number depending on the base passed as parameter.
+ *        It is made out of the BigInteger class, being this modified to adapt it to template.
+ *        Important note: There is a specialization for the base 2 on the line 420 of this file
+ * @param unsigned_char base of representation
+ */
 template <unsigned char Base = 10> class BigInteger {
  private:
   BigUnsigned<Base> module_;
@@ -124,6 +131,7 @@ template <unsigned char Base> std::ostream& operator<<(std::ostream& os, const B
       os << "-";
     }
     for (int i {num.getModule().getDigits().size() - 1}; i >= 0; --i) {
+      // Same as with BigUnsigned, we get the representation of the letters when the base is greater than 10
       if (num.getModule().getDigits()[i] >= 'A' && num.getModule().getDigits()[i] <= 'Z') {
         os << num.getModule().getDigits()[i];
       } else {
@@ -163,7 +171,7 @@ template <unsigned char Base> std::istream& operator>>(std::istream& is, BigInte
  * @brief Overload of < operator between two BI
  * @param BI 1 to be compared
  * @param BI 2 to be compared
- * @return if BU_1 is minor than BU_2
+ * @return if BI_1 is minor than BI_2
  */
 template <unsigned char Base> bool operator<(const BigInteger<Base>& big_integer_1, const BigInteger<Base>& big_integer_2) {
   // Case: Both negative, the one with greater module will be greater
@@ -181,8 +189,8 @@ template <unsigned char Base> bool operator<(const BigInteger<Base>& big_integer
 
 /**
  * @brief Overload of == operator for BI class
- * @param BU number 1 
- * @param BU number 2
+ * @param BI number 1 
+ * @param BI number 2
  * @return bool. True if number 1 and number 2 are the same. False otherwise
  */
 template <unsigned char Base> bool operator==(const BigInteger<Base>& big_integer_1, const BigInteger<Base>& big_integer_2) {
@@ -307,7 +315,7 @@ template <unsigned char Base> BigInteger<Base> operator++(BigInteger<Base>& big_
 
 /**
  * @brief Pre-decrement operator. It rests 1 to a BI in pre-order
- * @param BI to be added 1
+ * @param BI to be rested 1
  * @return BI rested
  */
 template <unsigned char Base> BigInteger<Base>& operator--(BigInteger<Base>& big_integer_1) {
@@ -319,7 +327,7 @@ template <unsigned char Base> BigInteger<Base>& operator--(BigInteger<Base>& big
 
 /**
  * @brief Post-decrement operator. It rests 1 to a BI in post-order
- * @param BI to be added 1
+ * @param BI to be rested 1
  * @return BI rested
  */
 template <unsigned char Base> BigInteger<Base> operator--(BigInteger<Base>& big_integer_1, int) {
@@ -407,15 +415,15 @@ template <unsigned char Base> BigInteger<Base> BigInteger<Base>::mcd(const BigIn
 
 
 /**
- * 
+ * @brief Specialization of BigInteger for the base 2
  */
 template<> class BigInteger<2> {
  private:
-  std::vector<bool> module_;
+  std::vector<bool> module_; // Vector of bools to improve efficiency
   bool sign_; // 1 if positive, 0 if negative
 
-  std::vector<bool> UnsignedSum(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) const;
-  BigInteger<2> TwosComplement() const;
+  std::vector<bool> UnsignedSum(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) const; // Sum not considering the signs
+  BigInteger<2> TwosComplement() const; // Two's complement
 
   void ProcessZeros();
   void Clear() {module_.clear();}
@@ -487,7 +495,7 @@ BigInteger<2>::BigInteger(int numero) {
 
 
 /**
- * @brief Constrcutor to build a BigUnsigned object
+ * @brief Constructor to build a BigUnsigned object
  * @param unsigned_char* array of chars to be converted
  */
 BigInteger<2>::BigInteger(const unsigned char* char_array) {
@@ -520,6 +528,10 @@ BigInteger<2>::BigInteger(const unsigned char* char_array) {
 }
 
 
+/**
+ * @brief Constructor from a BigUnsigned number (copying the digits into module_)
+ * @param BigUnsigned in base two to be copied
+ */
 BigInteger<2>::BigInteger(const BigUnsigned<2>& to_be_binary) {
   for (long unsigned int i {0}; i < to_be_binary.getDigits().size(); ++i) {
     module_.push_back(to_be_binary.getDigits()[i]);
@@ -584,6 +596,7 @@ std::istream& operator>>(std::istream& is, BigInteger<2>& num) {
     input.erase(0, 1); // Erase one position starting from the position zero ("-")
   }
   
+  // Adding bools to the vector
   for (char caracter : input) {
     if (caracter != '1' && caracter != '0') {
       std::cerr << "Error" << std::endl;
@@ -595,10 +608,12 @@ std::istream& operator>>(std::istream& is, BigInteger<2>& num) {
     }
   }
 
+  // Revert the order
   for (int i {temp.size()-1}; i >= 0; --i) {
     num.module_.push_back(temp[i]);
   }
 
+  // Fix the sign
   num.sign_ = not_negative;
 
   return is;
@@ -615,15 +630,24 @@ void BigInteger<2>::ProcessZeros() {
 }
 
 
+/**
+ * @brief Private method that calculates the unsigned sum of two binaries, but spreading the last bit (sign spreading)
+ * @param BigInteger in base two, first number
+ * @param BigInteger in base two, second number
+ * @return BigInteger in base two, result of summing both
+ */
 std::vector<bool> BigInteger<2>::UnsignedSum(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) const {
+  // Getting copies, since we could add digits
   BigInteger<2> big_binary_1_copy = big_binary_1;
   BigInteger<2> big_binary_2_copy = big_binary_2;
 
   std::vector<bool> result;
   result.clear();
 
+  // Getting the maximum size
   unsigned max_size = std::max(big_binary_1.getModule().size(), big_binary_2.getModule().size());
 
+  // Before summing, sign extension
   if (big_binary_1.getModule().size() != max_size && big_binary_1.getSign() == 0) {
     for (long unsigned int i {big_binary_1.getModule().size()}; i < max_size; ++i) {
       big_binary_1_copy.AddDigit(1);
@@ -636,6 +660,7 @@ std::vector<bool> BigInteger<2>::UnsignedSum(const BigInteger<2>& big_binary_1, 
 
   bool carry = false;
 
+  // For each digit we get the bit of each position (if exists) and 0 if it does not exist
   for (unsigned int i {0}; i < max_size || carry; ++i) {
     bool bit1 = (i < big_binary_1_copy.getModule().size()) ? big_binary_1_copy.getModule()[i] : false; // Get the bit from the first number
     bool bit2 = (i < big_binary_2_copy.getModule().size()) ? big_binary_2_copy.getModule()[i] : false; // Get the bit from the second number
@@ -650,22 +675,29 @@ std::vector<bool> BigInteger<2>::UnsignedSum(const BigInteger<2>& big_binary_1, 
 }
 
 
+/**
+ * @brief Private method that returns the complement of the BigInteger that invoked this method
+ * @return complement
+ */
 BigInteger<2> BigInteger<2>::TwosComplement() const {
   BigInteger<2> result = *this;
   
+  // Bool that will show us when the first '1' is found
   bool first_found = false;
   for (unsigned int i {0}; i < result.module_.size(); ++i) {
+    // If we don't find it, continue the loop
     if (first_found == false) {
       if (result.module_[i] != 1) {
         continue;
       } else {
-        first_found = true;
+        first_found = true; // If we find it, set the bool as true
       }
     } else {
-      result.module_[i] = !result.module_[i]; 
+      result.module_[i] = !result.module_[i]; // If it's been found, revert the bits of each position (0 -> 1, 1 -> 0)
     }
   }
 
+  // Revert the sign
   result.sign_ = !result.sign_;
 
   return result;
@@ -673,9 +705,9 @@ BigInteger<2> BigInteger<2>::TwosComplement() const {
 
 
 /**
- * @brief Overload of < operator for BigUnsigned class. Calculates which one between two BigUnsigneds (aka BU) is the minor one
- * @param BU number 1 
- * @param BU number 2
+ * @brief Overload of < operator for BigInteger in base two. Calculates which one between two BigIntegers in base two
+ * @param BI number 1 
+ * @param BI number 2
  * @return bool. True if number 1 is less than number 2. False otherwise
  */
  bool operator<(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
@@ -718,9 +750,9 @@ BigInteger<2> BigInteger<2>::TwosComplement() const {
 
 
 /**
- * @brief Overload of == operator for BigUnsigned class
- * @param BU number 1 
- * @param BU number 2
+ * @brief Overload of == operator for BigInteger in base two
+ * @param BI number 1 
+ * @param BI number 2
  * @return bool. True if number 1 and number 2 are the same. False otherwise
  */
 bool operator==(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
@@ -738,9 +770,9 @@ bool operator==(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_bina
 
 
 /**
- * @brief Overload of >= operator for BigUnsigned class
- * @param BU number 1 
- * @param BU number 2
+ * @brief Overload of >= operator for BigInteger in base two
+ * @param BI number 1 
+ * @param BI number 2
  * @return bool. True if number 1 is greater or equal than number 2. False otherwise
  */
 bool operator>=(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
@@ -748,6 +780,9 @@ bool operator>=(const BigInteger<2>& big_binary_1, const BigInteger<2>& big_bina
 }
 
 
+/**
+ * @brief Overload of + operator for BigInteger in base two. It sums both numbers using Twos complement when one of them  is negative
+ */
 BigInteger<2> operator+ (const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
   unsigned int max_size = std::max(big_binary_1.getModule().size(), big_binary_2.getModule().size());
   if (big_binary_1.getSign() == 0 && big_binary_2.getSign() == 0) {
@@ -808,8 +843,8 @@ BigInteger<2> operator+ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
 
 
 /**
- * @brief Pre-increment operator. It adds 1 to a BU in pre-order
- * @param BU to be added 1
+ * @brief Pre-increment operator. It adds 1 to a BI in base two in pre-order
+ * @param BI to be added 1
  * @return BU summed
  */
 BigInteger<2>& operator++(BigInteger<2>& big_binary_1) {
@@ -820,8 +855,8 @@ BigInteger<2>& operator++(BigInteger<2>& big_binary_1) {
 
 
 /**
- * @brief Post-increment operator. It adds 1 to a BU in post-order
- * @param BU to be added 1
+ * @brief Post-increment operator. It adds 1 to a BI in base two in post-order
+ * @param BI to be added 1
  * @return BU summed
  */
 BigInteger<2> operator++(BigInteger<2>& big_binary_1, int) {
@@ -833,9 +868,9 @@ BigInteger<2> operator++(BigInteger<2>& big_binary_1, int) {
 
 
 /**
- * @brief Overload of - operator, it calculates the rest between two BU. If the result is less than zero, it'll show zero
- * @param BU number to be rested
- * @return BU result of the rest
+ * @brief Overload of - operator, it calculates the rest between two BI in base two
+ * @param BI number to be rested
+ * @return BI result of the rest
  */
 BigInteger<2> BigInteger<2>::operator- (const BigInteger<2>& big_binary_2) const {
   unsigned int max_size = std::max(module_.size(), big_binary_2.getModule().size());
@@ -892,9 +927,9 @@ BigInteger<2> BigInteger<2>::operator- (const BigInteger<2>& big_binary_2) const
 
 
 /**
- * @brief Pre-increment operator. It adds 1 to a BU in pre-order
- * @param BU to be added 1
- * @return BU summed
+ * @brief Pre-decrement operator. It rests 1 to a BI in base two in pre-order
+ * @param BI to be rested 1
+ * @return BI rested
  */
 BigInteger<2>& operator--(BigInteger<2>& big_binary_1) {
   BigInteger<2> unit (1);
@@ -904,9 +939,9 @@ BigInteger<2>& operator--(BigInteger<2>& big_binary_1) {
 
 
 /**
- * @brief Post-increment operator. It adds 1 to a BU in post-order
- * @param BU to be added 1
- * @return BU summed
+ * @brief Post-decrement operator. It rests 1 to a BI in base two in post-order
+ * @param BI to be rested 1
+ * @return BI rested
  */
 BigInteger<2> operator--(BigInteger<2>& big_binary_1, int) {
   BigInteger<2> post_binary = big_binary_1;
@@ -917,10 +952,10 @@ BigInteger<2> operator--(BigInteger<2>& big_binary_1, int) {
 
 
 /**
- * @brief Overload of * operator. It returns the multiplication between two BU
- * @param BU Number 1
- * @param BU Number 2
- * @return BU result
+ * @brief Overload of * operator. It returns the multiplication between two BI in base two
+ * @param BI Number 1
+ * @param BI Number 2
+ * @return BI result
  */
 BigInteger<2> BigInteger<2>::operator* (const BigInteger<2>& mult) const {
   BigInteger<2> result;
@@ -938,8 +973,8 @@ BigInteger<2> BigInteger<2>::operator* (const BigInteger<2>& mult) const {
   additional.setSign(1);
 
   while (counter < mult_copy) {
-    result = result + additional; // Suma el número actual al resultado
-    ++counter; // Incrementa el contador
+    result = result + additional; 
+    ++counter; 
   }
 
   if (sign_ != mult.getSign()) {
@@ -953,9 +988,9 @@ BigInteger<2> BigInteger<2>::operator* (const BigInteger<2>& mult) const {
 
 
 /**
- * @brief Overload of % operator. It returns the module resulting from the integer division between two BU
- * @param BU denominator
- * @return BU module result
+ * @brief Overload of % operator. It returns the module resulting from the integer division between two BI
+ * @param BI denominator
+ * @return BI module result
  */
 BigInteger<2> BigInteger<2>::operator% (const BigInteger<2>& big_binary) const {
   BigInteger<2> temp_num = *this;
@@ -974,10 +1009,10 @@ BigInteger<2> BigInteger<2>::operator% (const BigInteger<2>& big_binary) const {
 
 
 /**
- * @brief Overload of / operator. It returns the integer division between two BU
- * @param BU numerator
- * @param BU denominator
- * @return BU integer result
+ * @brief Overload of / operator. It returns the integer division between two BI
+ * @param BI numerator
+ * @param BI denominator
+ * @return BI integer result
  */
 BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>& big_binary_2) {
   BigInteger<2> temp_num;
@@ -1011,9 +1046,10 @@ BigInteger<2> operator/ (const BigInteger<2>& big_binary_1, const BigInteger<2>&
 
 
 /**
- * @brief Overload of % operator. It returns the module resulting from the integer division between two BU
- * @param BU denominator
- * @return BU module result
+ * @brief GCD implementation between two BI in base two
+ * @param BI Number 1
+ * @param BI Number 2
+ * @return Greatest common divisor between both BI in base two
  */
 BigInteger<2> BigInteger<2>::mcd(const BigInteger<2>& num_1, const BigInteger<2>& num_2) const {
   // Getting two temporal BI to modify in the iterative version of the GCD, with motivation not to overflow the stack with recursive calls
